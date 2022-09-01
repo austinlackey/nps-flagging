@@ -373,7 +373,7 @@ def runFile(fileName): #Function to run each Calc Map File
 # pd.set_option('display.width', None)
 
 parkFilesFolder = r'C:\Users\alackey\DOI\NPS-NRSS-EQD VUStats Internal - General\PARK FILES'
-debugState = True
+debugState = False
 debugPark = "CUVA"
 
 if debugState:
