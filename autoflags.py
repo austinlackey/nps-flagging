@@ -357,6 +357,11 @@ def runFile(fileName): #Function to run each Calc Map File
     if(name.split(' ')[0] == "CUVA"): #CUVA SPECIAL CASE
         table2 = table2[table2.CODE != "RECH0"]
         table2 = table2.reset_index(drop=True)
+        
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    #pd.set_option('display.max_colwidth', -1)
+    pd.set_option('display.width', None)
     
     return(table2, allErrors)
 
