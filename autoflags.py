@@ -358,11 +358,6 @@ def runFile(fileName): #Function to run each Calc Map File
         table2 = table2[table2.CODE != "RECH0"]
         table2 = table2.reset_index(drop=True)
     
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', 9999)
-    #pd.set_option('display.max_colwidth', -1)
-    pd.set_option('display.width', 9999)
-    
     return(table2, allErrors)
 
 
