@@ -1,11 +1,11 @@
 #   autoflags algorithm
-#
+#   X
 #
 #   "autoflags.py" python file is the algorithm that takes in an excel file name and uses reccursion to scan a parks calc map and returns a matrix
 #   with each field name mapped to a statistic as well as a log with any errors encountered while traversing the calculation map. "flagScript.py"
 #   is the script that traverses the DOI server folder achitecture and finds calculation maps. Once the map is found, it uses the "autoflags.py"
 #   algorithm and stiches the error logs and flags matrices into one large batch file.
-#
+#   
 #
 #   In order to successfully run this file, you need python3 installed, as well as the following python packages... (tqdm, openpyxl, pandas, numpy)
 #   You may need to install those packages as well.
