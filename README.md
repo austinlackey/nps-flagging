@@ -1,2 +1,3 @@
-# NPSFlags
-National Park Service Repository for the Flags Algorithm
+# Flagging Automation tool for the National Park Service VU Stats Program
+
+## Contents
