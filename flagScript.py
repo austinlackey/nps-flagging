@@ -3,7 +3,7 @@
 #
 #   "autoflags.py" python file is the algorithm that takes in an excel file name and uses reccursion to scan a parks calc map and returns a matrix
 #   with each field name mapped to a statistic as well as a log with any errors encountered while traversing the calculation map. "flagScript.py"
-#   is the script that traverses the server folder achitecture and finds calculation maps. Once the map is found, it uses the "autoflags.py"
+#   is the script that traverses the DOI server folder achitecture and finds calculation maps. Once the map is found, it uses the "autoflags.py"
 #   algorithm and stiches the error logs and flags matrices into one large batch file.
 #
 #
@@ -31,7 +31,7 @@
 #   3. Open up Terminal(MAC) or Command Prompt(WINDOWS) and navigate to the folder/path that the python file resides in.
 #       - You can do this by entering the command 'cd <folder name>' repeatily until you are in the same directory as the python file.
 #   4. Enter the command 'python3 flagScript.py' and press <Enter>.
-#       - If you did the above steps correctly and setup the proper REDACTED, the program should create an excel file
+#       - If you did the above steps correctly and setup the proper DOI Server Park Files Folder path, the program should create an excel file
 #       named "Batch.xlsx" in the same directory that the python script file resides in. The first sheet contains the flags matrix and the second sheet contains the error logs for all of the parks.
 #   FYI: Each time you run the file, it will overwrite the old "Batch.xlsx" file, so beware.
 
@@ -51,11 +51,13 @@ import time
 updateMode = False
 limitTime = time.strptime("10/20/22", "%m/%d/%y")
 
-parkFilesFolder = r'REDACTED'
+parkFilesFolder = r'C:\Users\alackey\DOI\NPS-NRSS-EQD VUStats Internal - General\PARK FILES'
 skipParks = []
+specificParks = ['PIRO']
+
 # FRSP
-debugState = False
-debugPark = "MAPR"
+debugState = True
+debugPark = "PIRO"
 
 if debugState:
     print("DEBUGGING")
@@ -83,7 +85,9 @@ else:
     except OSError:
         sys.exit("Incorrect Folder Structure")
     parkFilesPath = os.getcwd()
-
+    if (len(specificParks) != 0):
+        print("ONLY COMPUTING SPECIFIC PARKS")
+        parkFolders = set(specificParks).intersection(parkFolders)
     for park in skipParks:
         parkFolders.remove(park)
     parkFolders = [park for park in parkFolders if len (park) == 4]
@@ -139,8 +143,15 @@ else:
     fillTrue = np.ones(len(allParks), dtype=bool)
     allParks.insert(loc=2, column="Used in Official Stats", value=fillTrue)
     allParks.rename(columns = {'CODE':'Field Name'}, inplace = True)
-    with pd.ExcelWriter('Batch.xlsx') as writer:  
-        allParks.to_excel(writer, sheet_name='BATCH TABLE')
-        errors.to_excel(writer, sheet_name='ERRORS')
-    print()
-    print("Batch is complete, look for the file \'Batch.xlsx\'")
+    if (len(specificParks) != 0):
+        with pd.ExcelWriter('Batch NEW.xlsx') as writer:  
+            allParks.to_excel(writer, sheet_name='BATCH TABLE')
+            errors.to_excel(writer, sheet_name='ERRORS')
+        print()
+        print("Batch is complete, look for the file \'Batch NEW.xlsx\'")
+    else:
+        with pd.ExcelWriter('Batch.xlsx') as writer:  
+            allParks.to_excel(writer, sheet_name='BATCH TABLE')
+            errors.to_excel(writer, sheet_name='ERRORS')
+        print()
+        print("Batch is complete, look for the file \'Batch.xlsx\'")

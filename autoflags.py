@@ -12,7 +12,7 @@
 #
 #   To install those packages, enter the following command into the Command Prompt/Terminal
 #
-#           "pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org <PACKAGE_NAME>"
+#           "pip3 install -U --trusted-host pypi.org --trusted-host files.pythonhosted.org <PACKAGE_NAME>"
 #
 #
 #   At the bottom of "autoflags.py" is a debug mode which allows you to perform the flags algorithm on a specific park wihtout compliling a large
@@ -88,6 +88,7 @@ import os
 from itertools import groupby
 pd.set_option('mode.chained_assignment', None)
 
+flagAllStats = True
 
 def runFile(fileName): #Function to run each Calc Map File
     path = os.getcwd() #Getting and setting the current Working Directory for future ref.
@@ -124,7 +125,6 @@ def runFile(fileName): #Function to run each Calc Map File
                     formulas[col][row] = ''
                 if (str(formulas[col][row]).startswith('=LOOKUP')):
                     formulas[col][row] = ''
-        
         #Regex for replacing negative constants in calc maps so they won't be confused with the field name statisic identification algorithm
         regexp = re.compile(r'^-\d+\.?\d*')
         for col in np.arange(0, values.shape[1]):
@@ -293,29 +293,29 @@ def runFile(fileName): #Function to run each Calc Map File
                     else: #If the cell is empty then add this to the error log
                         errorStats.loc[len(errorStats)] = [sheetNumber + 1, "Formatting Error", (str('Blank Field Name Located at ' + str(chr(g)) + str(h)))]
                 
-                if ('-' in str(values[chr(g)][h])): #There may be multiple stats within a sheet ie REC aand RECH
+                if ('-' in str(values[chr(g)][h])): #There may be multiple stats within a sheet ie REC and RECH
                     if ((values[chr(g)][h].split('-')[-1].replace(' ', '') in stats)):
                         if (not(values[chr(g)][h].split('-')[-1].replace(' ', '') in statNames)): #If its not already a stat, then append it.
                             statNames.append(values[chr(g)][h].split('-')[-1].replace(' ', ''))
                             statIndices.append(str(chr(g + 1) + str(h)))
-            
-            
         #Reccurisive Search Algorithm for traversing the excel formula trees within each sheet.
         def reccursiveSearch(arr):
             if arr.size == 0: #i.e you are at the end of the tree, just return and stop the algorithim traversal
                 return
+            if arr.size == 1:
+                arr = np.array([list(arr.tolist())])
             for item in arr: #For each cell within the formula
-                currName = values[chr(ord(item[0])-1)][int(item[1])] #Get the name
-                if not(currName is None):
-                    if currName == "PPV":
-                        fieldNames.append(currName)
-                    if '-' in currName:
-                        if not(currName.split('-')[-1] in fieldNames):
-                            fieldNames.append(currName.split('-')[-1].replace(' ', ''))
-                    reccursiveSearch(formulas[str(item[0])][int(item[1])]) #Traverse down the next branch
+                if (ord(item[0]) - 64 <= values.shape[1]) and (int(item[1]) <= values.shape[0]):
+                    currName = values[chr(ord(item[0])-1)][int(item[1])] #Get the name
+                    if not(currName is None):
+                        if currName == "PPV":
+                            fieldNames.append(currName)
+                        if '-' in currName:
+                            if not(currName.split('-')[-1] in fieldNames):
+                                fieldNames.append(currName.split('-')[-1].replace(' ', ''))
+                        reccursiveSearch(formulas[str(item[0])][int(item[1])]) #Traverse down the next branch
                 else:
                     errorStats.loc[len(errorStats)] = [sheetNumber + 1, "Formula Error", (str("Pointing To empty Cell" + '(' + str(item[0]) + str(item[1]) + ')'))]
-
 
         #For each stat that is within each sheet, we want to perform a reccursive search and add to the total field codes DataFrame
         for statLoc in statIndices:
@@ -351,6 +351,10 @@ def runFile(fileName): #Function to run each Calc Map File
             colArr.append(item)
     table2 = table2.reindex(columns=colArr)
     table2 = table2.fillna(0)
+    if flagAllStats:
+        for item in totalStatCodes:
+            if not(np.isin(item, table2['CODE'])):
+                table2.loc[len(table2.index)] = [name.split(' ')[0], item, False, False, False, False, False, False, False, False, False, False, False]
     table2.iloc[0:, 2:] = table2.iloc[0: , 2:].astype(bool)
 
     #Special cases with certian Calc Maps
@@ -374,7 +378,7 @@ def runFile(fileName): #Function to run each Calc Map File
 
 parkFilesFolder = r'C:\Users\alackey\DOI\NPS-NRSS-EQD VUStats Internal - General\PARK FILES'
 debugState = False
-debugPark = "FONE"
+debugPark = "PIRO"
 
 if debugState:
     pd.set_option('display.max_rows', None)
